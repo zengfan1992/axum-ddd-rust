@@ -159,12 +159,17 @@ impl CircleRepositoryInterface for CircleRepositoryWithMySql {
     async fn update(&self, circle: &Circle) -> Result<Circle, anyhow::Error> {
         tracing::info!("update_circle : {:?}", circle);
         let circle_data = CircleData::try_from(circle.clone())?;
-        let circle_query =
-            sqlx::query("UPDATE circles SET name = ?, owner_id = ?, capacity = ? WHERE id = ?")
-                .bind(circle_data.name)
-                .bind(circle_data.owner_id)
-                .bind(circle_data.capacity)
-                .bind(circle_data.id);
+        let circle_query = sqlx::query!(
+            "UPDATE circles SET name = ?, owner_id = ?, capacity = ? WHERE id = ?",
+            circle_data.name,
+            circle_data.owner_id,
+            circle_data.capacity,
+            circle_data.id
+        );
+        // .bind(circle_data.name)
+        // .bind(circle_data.owner_id)
+        // .bind(circle_data.capacity)
+        // .bind(circle_data.id);
 
         circle_query.execute(&self.db).await.map_err(|e| {
             eprintln!("Failed to update circle: {:?}", e);
